@@ -1,0 +1,42 @@
+version: '3.1'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    container_name: db
+    environment:
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DB: blog
+      POSTGRES_USER: postgres
+    volumes:
+      - db:/var/lib/postgresql/data
+  
+  server:
+    build: ./server
+    container_name: server
+    depends_on:
+      - db
+    links:
+      - db
+    command: bash -c "
+        npx prisma generate 
+        && npx prisma migrate deploy 
+        && npm run start"
+    ports:
+      - 3000:3000
+    volumes:
+      - server_media:/server/media
+
+  client:
+    build: ./client
+    container_name: client
+    depends_on:
+      - server
+    command: serve -s dist -l 8000
+    ports:
+      - 8000:8000
+
+volumes:
+  server_media:
+  db:

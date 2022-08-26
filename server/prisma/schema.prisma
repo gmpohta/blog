@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id             Int            @id @default(autoincrement())
+  name           String         @unique @db.VarChar(1000)
+  posts          Post[]
+  mediaFiles     Media[]
+  password       String         @db.VarChar(1000) 
+}
+
+model Post{
+  id           Int             @id @default(autoincrement())
+  date         DateTime        @default(now()) @db.Timestamptz
+  title        String?         @db.VarChar(2000)
+  text         String?         @db.Text
+  userRoot     User            @relation(fields: [userId], references:[id], onDelete: Cascade)
+  userId       Int
+  mediaFiles   MediaOnPost[]
+}
+
+model Media{
+  id              Int             @id @default(autoincrement())
+  URL             String          @unique @db.VarChar(1000) @default("default.png")
+  name            String          @db.VarChar(1000)
+  type            String          @db.VarChar(500)
+  userRoot        User            @relation(fields: [userId], references:[id], onDelete: Cascade)
+  userId          Int
+  posts           MediaOnPost[]
+  date            DateTime        @default(now())
+}
+
+model MediaOnPost {
+  id               Int       @id @default(autoincrement())
+  mediaFiles       Media?    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  mediaId          Int? 
+  posts            Post      @relation(fields: [postId], references:[id], onDelete: Cascade)
+  postId           Int
+}
