@@ -1,5 +1,6 @@
 # blog
-#The simple blog
+The simple blog
 
-#RUN:
+RUN:
+
 docker-compose up --build
